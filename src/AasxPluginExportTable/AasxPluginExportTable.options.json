@@ -1,4 +1,4 @@
-﻿{
+{
     "TemplateIdConceptDescription": "www.example.com/ids/cd/DDDD_DDDD_DDDD_DDDD",
     // the following options, if Docker (Desktop) is installed:
     "SmtExportHtmlCmd": "docker",

@@ -344,7 +344,7 @@ namespace AasxPluginAssetInterfaceDescription
                     }
                     catch (Exception ex)
                     {
-                        ;
+                        LogInternally.That.SilentlyIgnoredError(ex);
                     }
                     return new AnyUiLambdaActionNone();
                 });
@@ -380,7 +380,7 @@ namespace AasxPluginAssetInterfaceDescription
                     }
                     catch (Exception ex)
                     {
-                        ;
+                        LogInternally.That.SilentlyIgnoredError(ex);
                     }
                     return new AnyUiLambdaActionNone();
                 });
@@ -405,7 +405,7 @@ namespace AasxPluginAssetInterfaceDescription
                     }
                     catch (Exception ex)
                     {
-                        ;
+                        LogInternally.That.SilentlyIgnoredError(ex);
                     }
                     return new AnyUiLambdaActionNone();
                 });
@@ -430,7 +430,7 @@ namespace AasxPluginAssetInterfaceDescription
                     }
                     catch (Exception ex)
                     {
-                        ;
+                        LogInternally.That.SilentlyIgnoredError(ex);
                     }
                     return new AnyUiLambdaActionNone();
                 });
@@ -617,7 +617,9 @@ namespace AasxPluginAssetInterfaceDescription
         #region Timer
         //===========
 
+        #pragma warning disable CS0414
         private bool _inDispatcherTimer = false;
+        #pragma warning restore CS0414
         private UInt64 _lastValueChanges = 0;
 
         private void DispatcherTimer_Tick(object sender, EventArgs e)

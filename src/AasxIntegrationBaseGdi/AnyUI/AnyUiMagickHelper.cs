@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2018-2023 Festo SE & Co. KG <https://www.festo.com/net/de_de/Forms/web/contact_international>
 Author: Michael Hoffmeister
 
@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Aas = AasCore.Aas3_1;
 
@@ -31,6 +32,7 @@ namespace AasxIntegrationBaseGdi
     /// Only one #define shall be given.
     /// This class understands the term GDI to be "graphics dependent inteface" ;-)
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public static class AnyUiGdiHelper
     {
         public static AnyUiBitmapInfo CreateAnyUiBitmapInfo(MagickImage source, bool doFreeze = true)
@@ -154,32 +156,7 @@ namespace AasxIntegrationBaseGdi
             }
 
             return null;
-        }
-
-        // DEPRECATED
-        //public static AnyUiBitmapInfo LoadBitmapInfoFromStream(Stream stream)
-        //{
-        //    if (stream == null)
-        //        return null;
-
-        //    try
-        //    {
-        //        // load image
-        //        var bi = new MagickImage(stream);
-        //        var binfo = CreateAnyUiBitmapInfo(bi);
-
-        //        // give this back
-        //        return binfo;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        AdminShellNS.LogInternally.That.SilentlyIgnoredError(ex);
-        //    }
-
-        //    return null;
-        //}
-
-        // TODO (MIHO, 2023-02-23): make the whole thing async!!
+        }        
 
         public static async Task<AnyUiBitmapInfo> MakePreviewFromPackageOrUrlAsync(
             AdminShellPackageEnvBase package, string path,

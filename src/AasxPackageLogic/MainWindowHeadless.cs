@@ -244,7 +244,7 @@ namespace AasxPackageLogic
                     }
 
                     // do
-                    PackageHelper.SignAll(
+                    await PackageHelper.SignAll(
                         sourceFn, certFn,
                         invokeMessage: (ticket.InvokeMessage == null)
                             ? StandardInvokeMessageDelegate : ticket.InvokeMessage);
@@ -1317,8 +1317,8 @@ namespace AasxPackageLogic
                     // report
                     Log.Singleton.Info($"Convert SMT qualifiers to SMT extension: {anyChanges} changes done.");
 
-                    // emit event for Submodel and children
-                    // this.AddDiaryEntry(submodel, new DiaryEntryStructChange(), allChildrenAffected: true);
+                    // TODO (MIHO, 2025-11-17): check, emit event for Submodel and children
+                    //// this.AddDiaryEntry(submodel, new DiaryEntryStructChange(), allChildrenAffected: true);
 
                     ticket.SetNextFocus = ticket.SubmodelRef;
                 }
@@ -1385,8 +1385,8 @@ namespace AasxPackageLogic
                     // report
                     Log.Singleton.Info($"Take over SM element relationships to CDs: {anyChanges} changes done.");
 
-                    // emit event for Submodel and children
-                    // this.AddDiaryEntry(submodel, new DiaryEntryStructChange(), allChildrenAffected: true);
+                    // TODO (MIHO, 2025-11-17): check, emit event for Submodel and children
+                    //// this.AddDiaryEntry(submodel, new DiaryEntryStructChange(), allChildrenAffected: true);
 
                     ticket.SetNextFocus = ticket.SubmodelRef;
                 }
@@ -1718,7 +1718,7 @@ namespace AasxPackageLogic
                     else
                     if (res is AasxPluginResultEventRedrawAllElements aprrae)
                     {
-                        MainWindow.CommandExecution_RedrawAllAsync();
+                        await MainWindow.CommandExecution_RedrawAllAsync();
                     }
                 }
                 catch (Exception ex)

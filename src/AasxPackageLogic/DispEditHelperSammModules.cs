@@ -96,8 +96,8 @@ namespace AasxPackageLogic
 					Formatting = Formatting.Indented
 				};
 				settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-				//settings.Converters.Add(new AdminShellConverters.AdaptiveAasIClassConverter(
-				//	AdminShellConverters.AdaptiveAasIClassConverter.ConversionMode.AasCore));
+				//// settings.Converters.Add(new AdminShellConverters.AdaptiveAasIClassConverter(
+				//// AdminShellConverters.AdaptiveAasIClassConverter.ConversionMode.AasCore));
 				json = JsonConvert.SerializeObject(sammInst, sammType, settings);
 			}
 			catch (Exception ex)
@@ -1157,13 +1157,15 @@ namespace AasxPackageLogic
 					Samm.ModelElement sammInst = null;
 					if (false)
 					{
-						// Note: right now, create fresh instance
-						sammInst = Activator.CreateInstance(sammType, new object[] { }) as Samm.ModelElement;
-						if (sammInst == null)
+                        // Note: right now, create fresh instance
+						#pragma warning disable CS0162 // Unerreichbarer Code wurde entdeckt.
+                        sammInst = Activator.CreateInstance(sammType, new object[] { }) as Samm.ModelElement;
+                        if (sammInst == null)
 						{
 							stack.Add(new AnyUiLabel() { Content = "(unable to create instance data)" });
 							continue;
 						}
+						#pragma warning restore CS0162 // Unerreichbarer Code wurde entdeckt.
 					}
 					else
 					{
@@ -1746,7 +1748,6 @@ namespace AasxPackageLogic
 				}
 
 			// figure out, which idSet to be used
-			// var idSet = Samm.SammIdSets.IdSets.Values.Last();
 			var idSet = Samm.SammIdSets.DetectVersion(globalNamespaces);
 			if (idSet == null)
 			{
@@ -2243,7 +2244,7 @@ namespace AasxPackageLogic
 							new Uri(nit.Uri));
 					}
 
-				// hack
+				// a little informal
 				g.NamespaceMap.AddNamespace("this", new Uri(buri));
 
 				// export

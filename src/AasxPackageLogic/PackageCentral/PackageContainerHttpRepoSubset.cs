@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2018-2023 Festo SE & Co. KG <https://www.festo.com/net/de_de/Forms/web/contact_international>
 Author: Michael Hoffmeister
 
@@ -200,7 +200,7 @@ namespace AasxPackageLogic.PackageCentral
             if (m.Success)
                 return true;
 
-            // TODO: Add AAS based Submodel
+            // TODO (MIHO, 2024-01-01): Add AAS based Submodel
             return false;
         }
 
@@ -384,9 +384,9 @@ namespace AasxPackageLogic.PackageCentral
 
             // for problems see:
             // https://stackoverflow.com/questions/372865/path-combine-for-urls
-            //if (Uri.TryCreate(baseUri, relativeUri, out var res))
-            //    return res;
-            //return null;
+            //// if (Uri.TryCreate(baseUri, relativeUri, out var res))
+            ////     return res;
+            //// return null;
 
             var bu = baseUri.ToString().TrimEnd('/');
             bu += "/" + relativeUri.TrimStart('/');
@@ -500,7 +500,6 @@ namespace AasxPackageLogic.PackageCentral
 
             // build 'pseudo'-JSON
             // Note: seems (against the spec??) only work without array
-            // var jsonArr = $"[{{\"name\": \"globalAssetId\", \"value\": \"{id}\"}}]";
             var jsonArr = $"{{\"name\": \"globalAssetId\", \"value\": \"{id}\"}}";
 
             // try combine
@@ -720,7 +719,6 @@ namespace AasxPackageLogic.PackageCentral
 
             // build 'pseudo'-JSON
             // Note: seems (against the spec??) only work without array
-            // var jsonArr = $"[{{\"name\": \"globalAssetId\", \"value\": \"{id}\"}}]";
             var jsonArr = $"{{\"name\": \"globalAssetId\", \"value\": \"{id}\"}}";
 
             // try combine
@@ -794,7 +792,6 @@ namespace AasxPackageLogic.PackageCentral
 
         public static ProfileDescription FindProfileDescription(string input)
         {
-            ProfileDescription pdFound = null;
             foreach (var pd in ProfileDescriptions)
                 if (pd.Id.Equals(input))
                     return pd;
@@ -829,6 +826,10 @@ namespace AasxPackageLogic.PackageCentral
 
             foreach (var ep in aasDescriptor.endpoints)
             {
+                // gather informaation
+                AasIdentifiableSideInfo aasSi = null;
+                List<AasIdentifiableSideInfo> smSiReg = null;
+
                 // strictly check IFC
                 var aasIfc = "" + ep["interface"];
                 if (!(aasIfc == "AAS-1.0"
@@ -837,16 +838,16 @@ namespace AasxPackageLogic.PackageCentral
                     || aasIfc == "AAS-3.1"))
                     continue;
 
-                // direct access HREF
-                var aasSi = new AasIdentifiableSideInfo()
-                {
-                    IsStub = false,
-                    StubLevel = AasIdentifiableSideInfoLevel.IdWithEndpoint,
-                    Id = "" + aasDescriptor.id,
-                    IdShort = "" + aasDescriptor.idShort,
-                    QueriedEndpoint = new Uri("" + ep.protocolInformation.href),
-                    DesignatedEndpoint = new Uri("" + ep.protocolInformation.href)
-                };
+                    // direct access HREF
+                    aasSi = new AasIdentifiableSideInfo()
+                    {
+                        IsStub = false,
+                        StubLevel = AasIdentifiableSideInfoLevel.IdWithEndpoint,
+                        Id = "" + aasDescriptor.id,
+                        IdShort = "" + aasDescriptor.idShort,
+                        QueriedEndpoint = new Uri("" + ep.protocolInformation.href),
+                        DesignatedEndpoint = new Uri("" + ep.protocolInformation.href)
+                    };
 
                 // but in order to operate as registry, a list of Submodel endpoints
                 // is required as well
@@ -864,20 +865,67 @@ namespace AasxPackageLogic.PackageCentral
                                     || aasIfc == "SUBMODEL-3.1"))
                                     continue;
 
-                            // ok
-                            string href = smep.protocolInformation.href;
-                            if (href.HasContent() == true)
-                                smRegged.Add(new AasIdentifiableSideInfo()
-                                {
-                                    IsStub = true,
-                                    StubLevel = AasIdentifiableSideInfoLevel.IdWithEndpoint,
-                                    Id = smdesc.id,
-                                    IdShort = smdesc.idShort,
-                                    QueriedEndpoint = new Uri(href),
-                                    DesignatedEndpoint = new Uri(href)
-                                });
+                                // ok
+                                string href = smep.protocolInformation.href;
+                                if (href.HasContent() == true)
+                                    smSiReg.Add(new AasIdentifiableSideInfo()
+                                    {
+                                        IsStub = true,
+                                        StubLevel = AasIdentifiableSideInfoLevel.IdWithEndpoint,
+                                        Id = smdesc.id,
+                                        IdShort = smdesc.idShort,
+                                        QueriedEndpoint = new Uri(href),
+                                        DesignatedEndpoint = new Uri(href)
+                                    });
                         }
-                    }
+                }
+                else if (aasIfc == "AAS-3.0")
+                {
+                    // Remark: Suspicously, this will be an exact copy 1.0 equal to 3.0 .. hmm
+                    // direct access HREF
+                    aasSi = new AasIdentifiableSideInfo()
+                    {
+                        IsStub = false,
+                        StubLevel = AasIdentifiableSideInfoLevel.IdWithEndpoint,
+                        Id = "" + aasDescriptor.id,
+                        IdShort = "" + aasDescriptor.idShort,
+                        QueriedEndpoint = new Uri("" + ep.protocolInformation.href),
+                        DesignatedEndpoint = new Uri("" + ep.protocolInformation.href)
+                    };
+
+                    // but in order to operate as registry, a list of Submodel endpoints
+                    // is required as well
+                    smSiReg = new List<AasIdentifiableSideInfo>();
+                    if (AdminShellUtil.DynamicHasProperty(aasDescriptor, "submodelDescriptors"))
+                        foreach (var smdesc in aasDescriptor.submodelDescriptors)
+                        {
+                            foreach (var smep in smdesc.endpoints)
+                            {
+                                // strictly check IFC
+                                var smIfc = "" + smep["interface"];
+                                if (smIfc != "SUBMODEL-3.0")
+                                    continue;
+
+                                // ok
+                                string href = smep.protocolInformation.href;
+                                if (href.HasContent() == true)
+                                    smSiReg.Add(new AasIdentifiableSideInfo()
+                                    {
+                                        IsStub = true,
+                                        StubLevel = AasIdentifiableSideInfoLevel.IdWithEndpoint,
+                                        Id = smdesc.id,
+                                        IdShort = smdesc.idShort,
+                                        QueriedEndpoint = new Uri(href),
+                                        DesignatedEndpoint = new Uri(href)
+                                    });
+                            }
+                        }
+                }
+                else
+                {
+                    // no chance
+                    continue;
+                }
 
                 // ok
                 var aas = await PackageHttpDownloadUtil.DownloadIdentifiableToOK<Aas.IAssetAdministrationShell>(
@@ -901,7 +949,7 @@ namespace AasxPackageLogic.PackageCentral
 
                 // make sure the list of Submodel endpoints is the same (in numbers)
                 // as the AAS expects
-                if (smRegged.Count != uniqSms.Count())
+                if (smSiReg.Count != uniqSms.Count())
                 {
                     Log.Singleton.Info(StoredPrint.Color.Blue,
                         "For downloading AAS at {0}, the number of Submodels " +
@@ -909,13 +957,13 @@ namespace AasxPackageLogic.PackageCentral
                         aasSi.QueriedEndpoint.ToString());
 
                     // cycle to next endpoint or next descriptor (more likely)
-                    // continue;
+                    //// continue;
                 }
 
                 // makes most sense to "recrate" the AAS.Submodels with the side infos
                 // from the registry
                 aas.Submodels = null;
-                foreach (var smrr in smRegged)
+                foreach (var smrr in smSiReg)
                     aas.AddSubmodelReference(new Aas.Reference(
                         ReferenceTypes.ModelReference,
                         (new Aas.IKey[] { new Aas.Key(KeyTypes.Submodel, smrr.Id) }).ToList()));
@@ -932,7 +980,7 @@ namespace AasxPackageLogic.PackageCentral
                     // be prepared to download them
                     var numRes = await PackageHttpDownloadUtil.DownloadListOfIdentifiables<Aas.ISubmodel, AasIdentifiableSideInfo>(
                         null,
-                        smRegged,
+                        smSiReg,
                         lambdaGetLocation: (si) => si.QueriedEndpoint,
                         runtimeOptions: runtimeOptions,
                         allowFakeResponses: allowFakeResponses,
@@ -960,7 +1008,7 @@ namespace AasxPackageLogic.PackageCentral
                 }
                 else
                 {
-                    foreach (var si in smRegged)
+                    foreach (var si in smSiReg)
                     {
                         // valid Id is required
                         if (si?.Id?.HasContent() != true)
@@ -1249,7 +1297,7 @@ namespace AasxPackageLogic.PackageCentral
                 prepCD = new OnDemandListIdentifiable<Aas.IConceptDescription>();
 
                 // integrate in a fresh environment
-                // TODO: new kind of environment
+                // TODO (MIHO, 2025-01-01): new kind of environment
                 env = (Aas.IEnvironment)new AasOnDemandEnvironment();
 
                 // already set structure to use some convenience functions
@@ -1258,7 +1306,7 @@ namespace AasxPackageLogic.PackageCentral
                 env.ConceptDescriptions = prepCD;
 
                 // also the package "around"
-                // TODO: Check default for base uri
+                // TODO (MIHO, 2025-01-01): Check default for base uri
                 dynPack = new AdminShellPackageDynamicFetchEnv(runtimeOptions,
                     baseUri.GetBaseUriForAasRepo());
             }
@@ -1269,7 +1317,7 @@ namespace AasxPackageLogic.PackageCentral
             // invalidate cursor data (as a new request is  about to be started)
             string cursor = null;
 
-            // TODO: very long function, needs to be refactored
+            // TODO (MIHO, 2025-01-01): very long function, needs to be refactored
             var operationFound = false;
 
             //
@@ -1508,7 +1556,9 @@ namespace AasxPackageLogic.PackageCentral
             {
                 // for all repo access, use the same client
                 var client = PackageHttpDownloadUtil.CreateHttpClient(baseUri.GetBaseUriForAasRepo(), runtimeOptions, containerList);
-                // var client = PackageHttpDownloadUtil.CreateHttpClient(new Uri(""), runtimeOptions, containerList);
+
+                //// Alternative
+                //// var client = PackageHttpDownloadUtil.CreateHttpClient(new Uri(""), runtimeOptions, containerList);
 
                 // start with a list of AAS or Submodels (very similar, therefore unified)
                 var isAllAAS = IsValidUriForRepoAllAAS(fullItemLocation)
@@ -1741,13 +1791,9 @@ namespace AasxPackageLogic.PackageCentral
 
                         // Have a list of ids. Decompose into single id.
                         // Note: Parallel makes no sense, ideally only 1 result (is per AssetId)!!
-                        // TODO: not parallel!
-                        var noRes = true;
                         int i = 0;
                         foreach (var res in resObj)
                         {
-                            noRes = false;
-
                             // in res, have only an id. Get the AAS itself
                             Uri designEnd = BuildUriForRepoSingleAAS(
                                     baseUri.GetBaseUriForAasRepo(), "" + res, encryptIds: true);
@@ -1781,7 +1827,6 @@ namespace AasxPackageLogic.PackageCentral
                                 if (i >= limitResults.Value)
                                     break;
                         }
-
                     }
                 }
 
@@ -1955,15 +2000,17 @@ namespace AasxPackageLogic.PackageCentral
                     var jsonQuery = "";
                     if (false)
                     {
-
+                        #pragma warning disable CS0162 // Unerreichbarer Code wurde entdeckt.
+                        // Andreas' very much outdated server:
                         // but, the query needs to be reformatted as JSON
-                        // query = "{ searchSMs(expression: \"\"\"$LOG  \"\"\") { url smId } }";
-                        // query = "{ searchSMs(expression: \"\"\"$LOG filter=or(str_contains(sm.IdShort, \"Technical\"), str_contains(sm.IdShort, \"Nameplate\")) \"\"\") { url smId } }";
+                        //// query = "{ searchSMs(expression: \"\"\"$LOG  \"\"\") { url smId } }";
+                        //// query = "{ searchSMs(expression: \"\"\"$LOG filter=or(str_contains(sm.IdShort, \"Technical\"), str_contains(sm.IdShort, \"Nameplate\")) \"\"\") { url smId } }";
                         query = query.Replace("\\", "\\\\");
                         query = query.Replace("\"", "\\\"");
                         query = query.Replace("\r", " ");
                         query = query.Replace("\n", " ");
                         jsonQuery = $"{{ \"query\" : \"{query}\" }} ";
+                        #pragma warning restore CS0162 // Unerreichbarer Code wurde entdeckt.
                     }
                     else
                     {
@@ -2385,12 +2432,14 @@ namespace AasxPackageLogic.PackageCentral
             string targetFilename,
             PackCntRuntimeOptions runtimeOptions = null)
         {
+            await Task.Yield();
             return false;
         }
 
         private async Task UploadToServerAsync(string copyFn, Uri serverUri,
             PackCntRuntimeOptions runtimeOptions = null)
         {
+            await Task.Yield();
         }
 
         public override async Task SaveToSourceAsync(string saveAsNewFileName = null,
@@ -2435,14 +2484,14 @@ namespace AasxPackageLogic.PackageCentral
             [AasxMenuArgument(help: "Specifies the part of the URI of the Repository/ Registry, which is " +
                 "common to all operations.")]
             public string BaseAddress = "";
-            // public string BaseAddress = "https://cloudrepo.aas-voyager.com/";
-            // public string BaseAddress = "https://eis-data.aas-voyager.com/";
-            // public string BaseAddress = "http://smt-repo.admin-shell-io.com/api/v3.0";
-            // public string BaseAddress = "https://techday2-registry.admin-shell-io.com/";
+            //// public string BaseAddress = "https://cloudrepo.aas-voyager.com/";
+            //// public string BaseAddress = "https://eis-data.aas-voyager.com/";
+            //// public string BaseAddress = "http://smt-repo.admin-shell-io.com/api/v3.0";
+            //// public string BaseAddress = "https://techday2-registry.admin-shell-io.com/";
 
             [AasxMenuArgument(help: "Either: Repository or Registry")]
             public BaseTypeEnum BaseType = BaseTypeEnum.Repository;
-            // public BaseTypeEnum BaseType = BaseTypeEnum.Registry;
+            //// public BaseTypeEnum BaseType = BaseTypeEnum.Registry;
 
             [AasxMenuArgument(help: "Retrieve all AAS from Repository or Registry. " +
                 "Note: Use of PageLimit is recommended.")]
@@ -2452,16 +2501,16 @@ namespace AasxPackageLogic.PackageCentral
             public bool GetSingleAas;
 
             [AasxMenuArgument(help: "Specifies the Id of the AAS to be retrieved.")]
-            // public string AasId = "https://new.abb.com/products/de/2CSF204101R1400/aas";
+            //// public string AasId = "https://new.abb.com/products/de/2CSF204101R1400/aas";
             public string AasId = "";
-            // public string AasId = "https://phoenixcontact.com/qr/2900542/1/aas/1B";
+            //// public string AasId = "https://phoenixcontact.com/qr/2900542/1/aas/1B";
 
             [AasxMenuArgument(help: "Get a single AAS, which is specified by a asset link/ asset id.")]
             public bool GetAasByAssetLink;
 
             [AasxMenuArgument(help: "Specifies the Id of the asset to be retrieved.")]
             public string AssetId = "";
-            // public string AssetId = "https://pk.harting.com/?.20P=ZSN1";
+            //// public string AssetId = "https://pk.harting.com/?.20P=ZSN1";
 
             [AasxMenuArgument(help: "Retrieve all Submodels from Repository or Registry. " +
                 "Note: Use of PageLimit is recommended.")]
@@ -2471,7 +2520,7 @@ namespace AasxPackageLogic.PackageCentral
             public bool GetSingleSubmodel;
 
             [AasxMenuArgument(help: "Specifies the Id of the Submodel to be retrieved.")]
-            // public string SmId = "aHR0cHM6Ly9leGFtcGxlLmNvbS9pZHMvc20vMjAxNV82MDIwXzMwMTJfMDU4NQ==";
+            //// public string SmId = "aHR0cHM6Ly9leGFtcGxlLmNvbS9pZHMvc20vMjAxNV82MDIwXzMwMTJfMDU4NQ==";
             public string SmId = "";
 
             [AasxMenuArgument(help: "Retrieve all ConceptDescriptions from Repository or Registry. " +
@@ -2490,8 +2539,6 @@ namespace AasxPackageLogic.PackageCentral
             [AasxMenuArgument(help: "Specifies the contents of the query script to be executed. " +
                 "Note: Complex syntax and quoting needs to be applied!")]
             public string QueryScript = "";
-            // public string QueryScript = "{\r\n  searchSMs(\r\n    expression: \"\"\"$LOG\r\n     filter=\r\n      or(\r\n        str_contains(sm.IdShort, \"Technical\"),\r\n        str_contains(sm.IdShort, \"Nameplate\")\r\n      )\r\n   \"\"\"\r\n  )\r\n  {\r\n    url\r\n    smId\r\n  }\r\n}";
-            // public string QueryScript = "{\r\n  searchSMs(\r\n    expression: \"\"\"$LOG$QL\r\n          ( contains(sm.idShort, \"Technical\") and\r\n          sme.value ge 100 and\r\n          sme.value le 200 )\r\n        or\r\n          ( contains(sm.idShort, \"Nameplate\") and\r\n          contains(sme.idShort,\"ManufacturerName\") and\r\n          not(contains(sme.value,\"Phoenix\")))\r\n    \"\"\"\r\n  )\r\n  {\r\n    url\r\n    smId\r\n  }\r\n}";
 
             [AasxMenuArgument(help: "Specifies the AAS meta model element type name to be queried (AAS, Submodel, ConceptDescription).")]
             public string QueryElementType = "AAS";
@@ -3754,14 +3801,14 @@ namespace AasxPackageLogic.PackageCentral
             [AasxMenuArgument(help: "Specifies the part of the URI of the Repository/ Registry, which is " +
                 "common to all operations.")]
             public string BaseAddress = "";
-            // public string BaseAddress = "https://cloudrepo.aas-voyager.com/";
-            // public string BaseAddress = "https://eis-data.aas-voyager.com/";
-            // public string BaseAddress = "http://smt-repo.admin-shell-io.com/api/v3.0";
-            // public string BaseAddress = "https://techday2-registry.admin-shell-io.com/";
+            //// public string BaseAddress = "https://cloudrepo.aas-voyager.com/";
+            //// public string BaseAddress = "https://eis-data.aas-voyager.com/";
+            //// public string BaseAddress = "http://smt-repo.admin-shell-io.com/api/v3.0";
+            //// public string BaseAddress = "https://techday2-registry.admin-shell-io.com/";
 
             [AasxMenuArgument(help: "Either: Repository or Registry")]
             public ConnectExtendedRecord.BaseTypeEnum BaseType = ConnectExtendedRecord.BaseTypeEnum.Repository;
-            // public ConnectExtendedRecord.BaseTypeEnum BaseType = ConnectExtendedRecord.BaseTypeEnum.Registry;
+            //// public ConnectExtendedRecord.BaseTypeEnum BaseType = ConnectExtendedRecord.BaseTypeEnum.Registry;
 
             [AasxMenuArgument(help: "Includes Submodels of the particular AAS into the upload.")]
             public bool IncludeSubmodels = false;
@@ -4037,7 +4084,7 @@ namespace AasxPackageLogic.PackageCentral
             {
                 // Note: it seems to be also possible to create an HttpClient with "" as BaseAddress and pass Host via URL!!
                 baseUri = new BaseUriDict(record.BaseAddress);
-                // TODO
+                // TODO (MIHO, 2025-01-01): check this again, if re-use is important
                 client = PackageHttpDownloadUtil.CreateHttpClient(baseUri.GetBaseUriForAasRepo(), runtimeOptions, containerList);
             }
 
@@ -4072,7 +4119,6 @@ namespace AasxPackageLogic.PackageCentral
                         rows,
                         lambdaGetLocation: (row) =>
                         {
-                            // return new Uri("https://eis-data.aas-voyager.com/shells/aHR0cHM6Ly9uZXcuYWJiLmNvbS9wcm9kdWN0cy9kZS8yQ1NSMjU1MTYzUjExNjUvYWFz");
                             if (!(row.Tag is Aas.IIdentifiable idf))
                                 return null;
                             if (idf is Aas.IAssetAdministrationShell)

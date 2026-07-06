@@ -747,7 +747,6 @@ namespace AasxPackageLogic
                     && that.Qualifiers == null
                     && that.EmbeddedDataSpecifications == null
                     && that.Statements == null
-                    && that.EntityType == null
                     && that.GlobalAssetId == null
                     && that.SpecificAssetIds == null)
                 {
@@ -1401,7 +1400,6 @@ namespace AasxPackageLogic
                 if(that.SemanticId == null
                     && that.SupplementalSemanticIds == null
                     && that.Type == null
-                    && that.ValueType == null
                     && that.Kind == null
                     && that.Value == null
                     && that.ValueId == null)
@@ -1463,7 +1461,6 @@ namespace AasxPackageLogic
                     && that.SupplementalSemanticIds == null
                     && that.Qualifiers == null
                     && that.EmbeddedDataSpecifications == null
-                    && that.ValueType == null
                     && that.Min == null
                     && that.Max == null)
                 {
@@ -1914,7 +1911,6 @@ namespace AasxPackageLogic
                     && that.SupplementalSemanticIds == null
                     && that.Qualifiers == null
                     && that.EmbeddedDataSpecifications == null
-                    && that.TypeValueListElement == null
                     && that.OrderRelevant == null
                     && that.SemanticIdListElement == null
                     && that.ValueTypeListElement == null

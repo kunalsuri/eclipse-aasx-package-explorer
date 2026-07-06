@@ -673,7 +673,7 @@ namespace AasxPackageLogic
 
         //Added this method only to support embeddedDS from ConceptDescriptions
         public void DisplayOrEditEntityHasDataSpecificationReferences(AnyUiStackPanel stack,
-            List<Aas.IEmbeddedDataSpecification>? hasDataSpecification,
+            List<Aas.IEmbeddedDataSpecification> hasDataSpecification,
             Action<List<Aas.IEmbeddedDataSpecification>> setOutput,
             string[] addPresetNames = null, List<Aas.IKey>[] addPresetKeyLists = null,
             bool dataSpecRefsAreUsual = false,
@@ -2755,7 +2755,7 @@ namespace AasxPackageLogic
                 byte[] bytes = Encoding.ASCII.GetBytes(uc.Text);
                 try
                 {
-                    // TODO: add IdShortPath !!
+                    // TODO (MIHO, 2024-01-01): add IdShortPath !!
                     env.PutBytesToPackageOrExternal(
                         valuePath, bytes);
                 }

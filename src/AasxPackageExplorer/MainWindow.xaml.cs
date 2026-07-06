@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2018-2023 Festo SE & Co. KG <https://www.festo.com/net/de_de/Forms/web/contact_international>
 Author: Michael Hoffmeister
 
@@ -763,6 +763,7 @@ namespace AasxPackageExplorer
                     ContentPanelEdit.Visibility = Visibility.Visible;
                 }
             }
+            // Reload elements, Drag, Show elements visible or not
             RowContentPanels.Height = new GridLength(panelHeight);
 
             // scroll or not
@@ -1160,7 +1161,7 @@ namespace AasxPackageExplorer
                         {
                             // load
                             Log.Singleton.Info("Switching to location {0} ..", fi.Location);
-                            UiLoadPackageWithNew(PackageCentral.MainItem, null, 
+                            await UiLoadPackageWithNew(PackageCentral.MainItem, null, 
                                 fi.Location, onlyAuxiliary: false, preserveEditMode: true);
 
                             // in any case, stop here
@@ -1241,9 +1242,9 @@ namespace AasxPackageExplorer
                         var container = await restRepository.LoadAasxFileFromServer(fi.PackageId, PackageCentral.CentralRuntimeOptions);
                         if (container != null)
                         {
-                            UiLoadPackageWithNew(PackageCentral.MainItem,
-                            takeOverContainer: container, onlyAuxiliary: false,
-                            storeFnToLRU: fi.PackageId);
+                            await UiLoadPackageWithNew(PackageCentral.MainItem,
+                                takeOverContainer: container, onlyAuxiliary: false,
+                                storeFnToLRU: fi.PackageId);
                         }
 
                         Log.Singleton.Info($"Successfully loaded AASX Package with PackageId {fi.PackageId}");
@@ -1275,7 +1276,7 @@ namespace AasxPackageExplorer
                         if (container == null)
                             Log.Singleton.Error($"Failed to load AASX from {location}");
                         else
-                            UiLoadPackageWithNew(PackageCentral.MainItem,
+                            await UiLoadPackageWithNew(PackageCentral.MainItem,
                                 takeOverContainer: container, onlyAuxiliary: false,
                                 storeFnToLRU: location);
 
@@ -1406,7 +1407,7 @@ namespace AasxPackageExplorer
                             $"Auto-load request seem to result in empty data! Auto-load location: {location}");
                     }
                     else
-                        UiLoadPackageWithNew(PackageCentral.MainItem,
+                        await UiLoadPackageWithNew(PackageCentral.MainItem,
                             takeOverContainer: container, onlyAuxiliary: false, indexItems: true,
                             nextEditMode: Options.Curr.EditMode);
 
@@ -1438,7 +1439,7 @@ namespace AasxPackageExplorer
                     if (container == null)
                         Log.Singleton.Error($"Failed to auto-load AASX from {location}");
                     else
-                        UiLoadPackageWithNew(PackageCentral.AuxItem,
+                        await UiLoadPackageWithNew(PackageCentral.AuxItem,
                             takeOverContainer: container, onlyAuxiliary: true, indexItems: false);
 
                     Log.Singleton.Info($"Successfully auto-loaded AASX {location}");
@@ -1482,36 +1483,6 @@ namespace AasxPackageExplorer
                 {
                     Log.Singleton.Error(ex, $"when executing script file {Options.Curr.ScriptCmd}");
                 }
-            }
-
-            //
-            // TEST
-            //
-
-            if (false)
-            {
-                // in both cases, prepare list of events as string
-                var lev = new List<AasEventMsgEnvelope>();
-
-                lev.Add(new AasEventMsgEnvelope()
-                {
-                    Source = new Aas.Reference(ReferenceTypes.ExternalReference,
-                        new List<IKey>(new[] { new Aas.Key(KeyTypes.Blob, "bb") }))
-                });
-
-                var settings = new JsonSerializerSettings
-                {
-                    // SerializationBinder = new DisplayNameSerializationBinder(new[] { typeof(AasEventMsgEnvelope) }),
-                    NullValueHandling = NullValueHandling.Ignore,
-                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                    TypeNameHandling = TypeNameHandling.None,
-                    Formatting = Formatting.Indented
-                };
-                settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-                settings.Converters.Add(new AdminShellConverters.AdaptiveAasIClassConverter(
-                    AdminShellConverters.AdaptiveAasIClassConverter.ConversionMode.AasCore));
-                var json = JsonConvert.SerializeObject(lev, settings);
-                ;
             }
 
             AasxIntegrationBaseWpf.CountryFlagWpf.LoadImage();
@@ -1908,7 +1879,7 @@ namespace AasxPackageExplorer
                     fileRepo.StartAnimation(fi, PackageContainerRepoItem.VisualStateEnum.ReadFrom);
 
                     // activate
-                    UiLoadPackageWithNew(PackageCentral.MainItem,
+                    await UiLoadPackageWithNew(PackageCentral.MainItem,
                         takeOverContainer: container, onlyAuxiliary: false);
 
                     Log.Singleton.Info($"Successfully loaded AASX {location}");
@@ -2056,7 +2027,7 @@ namespace AasxPackageExplorer
                 return null;
 
             // try to load in sequence, until new Identifiable is found
-            // TODO: take over those options from existing container
+            // TODO (MIHO, 2024-01-01): take over those options from existing container
             var foundIdfs = new List<Aas.IIdentifiable>();
             foreach (var search in searches)
             {
@@ -3084,7 +3055,7 @@ namespace AasxPackageExplorer
 
             // normal stuff
             MainTimer_PeriodicalTaskForSelectedEntity();
-            MainTaimer_HandleIncomingAasEvents();
+            await MainTaimer_HandleIncomingAasEvents();
             DisplayElements.UpdateFromQueuedEvents();
         }
 
@@ -4171,7 +4142,7 @@ namespace AasxPackageExplorer
             }
         }
 
-        private void Window_Drop(object sender, DragEventArgs e)
+        private async void Window_Drop(object sender, DragEventArgs e)
         {
             // Appearantly you need to figure out if OriginalSource would have handled the Drop?
             if (!e.Handled && e.Data.GetDataPresent(DataFormats.FileDrop, true))
@@ -4186,7 +4157,7 @@ namespace AasxPackageExplorer
                     string fn = files[0];
                     try
                     {
-                        UiLoadPackageWithNew(
+                        await UiLoadPackageWithNew(
                             PackageCentral.MainItem, null, loadLocalFilename: fn, onlyAuxiliary: false,
                             nextEditMode: Options.Curr.EditMode);
                     }
@@ -4254,6 +4225,9 @@ namespace AasxPackageExplorer
 
 #endregion
 
+        /// <summary>
+        /// Tools are find & replace
+        /// </summary>
         private void ButtonTools_Click(object sender, RoutedEventArgs e)
         {
             if (sender == ButtonToolsClose)

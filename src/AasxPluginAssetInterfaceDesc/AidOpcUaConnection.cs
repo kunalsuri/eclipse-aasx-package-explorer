@@ -107,8 +107,9 @@ namespace AasxPluginAssetInterfaceDescription
             }
             catch (Exception ex)
             {
+                LogInternally.That.SilentlyIgnoredError(ex);
                 Client = null;
-                // _subscribedTopics.Clear();
+                //// _subscribedTopics.Clear();
                 return false;
             }
         }
@@ -125,13 +126,13 @@ namespace AasxPluginAssetInterfaceDescription
             {
                 try
                 {
-                    // Client.Cancel();
+                    //// Client.Cancel();
                     Client.Close();
                 } catch (Exception ex)
                 {
-                    ;
+                    LogInternally.That.SilentlyIgnoredError(ex);
                 }
-                // _subscribedTopics.Clear();
+                //// _subscribedTopics.Clear();
             }
         }
 
@@ -163,7 +164,7 @@ namespace AasxPluginAssetInterfaceDescription
             }
             catch (Exception ex)
             {
-                ;
+                LogInternally.That.SilentlyIgnoredError(ex);
             }
 
             return 0;

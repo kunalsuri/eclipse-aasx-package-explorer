@@ -10,16 +10,8 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 This source code may use other Open Source software components (see LICENSE.txt).
 */
 
-using AasxIntegrationBase;
-using AasxMqttClient;
-using AasxPackageLogic;
 using AasxPackageLogic.PackageCentral;
-using AdminShellNS;
 using AnyUi;
-using Extensions;
-using Microsoft.Identity.Client;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,6 +22,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -80,12 +73,18 @@ namespace AasxPackageExplorer
 
             if (false)
             {
-                X509Certificate2Collection scollection = X509Certificate2UI.SelectFromCollection(fcollection,
-                    "Certificate Select",
-                    "Select a certificate for authentification on AAS server",
-                    X509SelectionFlag.SingleSelection);
-
-                return scollection;
+#pragma warning disable CS0162 // Unerreichbarer Code wurde entdeckt.
+                if (OperatingSystem.IsWindows())
+                {
+                    // Note: Leave this in, suppress warning
+                    X509Certificate2Collection scollection = X509Certificate2UI.SelectFromCollection(fcollection,
+                        "Certificate Select",
+                        "Select a certificate for authentification on AAS server",
+                        X509SelectionFlag.SingleSelection);
+                    return scollection;
+#pragma warning restore CS0162 // Unerreichbarer Code wurde entdeckt.
+                }
+                return null;
             }
             else
             {

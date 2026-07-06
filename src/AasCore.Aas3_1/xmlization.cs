@@ -16791,7 +16791,10 @@ namespace AasCore.Aas3_1
                 //         ?? throw new System.InvalidOperationException(
                 //            "Unexpected null, had to be handled before"));
 
+                // TODO (Jui, 2024-01-01): Suppress, because of least side effects
+#pragma warning disable CS8604
                 return new EmbeddedDataSpecification(theDataSpecification, theDataSpecificationContent);
+#pragma warning restore CS8604
             }  // internal static Aas.EmbeddedDataSpecification? EmbeddedDataSpecificationFromSequence
 
             /// <summary>

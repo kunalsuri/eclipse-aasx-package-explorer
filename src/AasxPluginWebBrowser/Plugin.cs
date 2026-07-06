@@ -9,6 +9,7 @@ This source code may use other Open Source software components (see LICENSE.txt)
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -137,9 +138,18 @@ namespace AasxIntegrationBase // the namespace has to be: AasxIntegrationBase
                 this.browserGrid.ColumnDefinitions.Add(
                     new ColumnDefinition() { Width = new GridLength(1.0, GridUnitType.Star) });
 
+                // New: two instances of the AASPE crash because of Cef
+                var settings = new CefSharp.Wpf.CefSettings
+                {
+                    CachePath = $"C:\\Temp\\CEFCache_{Process.GetCurrentProcess().Id}"
+                };
+                if (Cef.IsInitialized != true)
+                    Cef.Initialize(settings);
+
+                // ok, start
                 this._browser = new CefSharp.Wpf.ChromiumWebBrowser();
                 this._browser.DownloadHandler = this;
-                // this._browser.RequestHandler = this;
+                //// this._browser.RequestHandler = this;
                 this._browser.Address = url;
                 this._browser.InvalidateVisual();
 
@@ -212,7 +222,11 @@ namespace AasxIntegrationBase // the namespace has to be: AasxIntegrationBase
             return false;
         }
 
-        IResourceRequestHandler IRequestHandler.GetResourceRequestHandler(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool isNavigation, bool isDownload, string requestInitiator, ref bool disableDefaultHandling)
+        IResourceRequestHandler IRequestHandler.GetResourceRequestHandler(
+            IWebBrowser chromiumWebBrowser, 
+            IBrowser browser, IFrame frame, 
+            IRequest request, bool isNavigation, bool isDownload, 
+            string requestInitiator, ref bool disableDefaultHandling)
         {
             return null;
         }

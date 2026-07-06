@@ -214,16 +214,10 @@ namespace AdminShellNS
 
         public static T DeserializeFromJSON<T>(string data) where T : IReferable
         {
-            //using (var tr = new StringReader(data))
-            //{
-            //var serializer = BuildDefaultAasxJsonSerializer();
-            //var rf = (T)serializer.Deserialize(tr, typeof(T));
-
             var node = System.Text.Json.Nodes.JsonNode.Parse(data);
             var rf = Jsonization.Deserialize.IReferableFrom(node);
 
             return (T)rf;
-            //}
         }
 
         /// <summary>
@@ -277,12 +271,12 @@ namespace AdminShellNS
             _aasEnv = environment;
         }
 
-        // TODO: remove, is not for base class!!
+        // TODO (MIHO, 2024-01-01): remove, is not for base class!!
         public virtual void SetFilename(string fileName)
         {
         }
 
-        // TODO: remove, is not for base class!!
+        // TODO (MIHO, 2024-01-01): remove, is not for base class!!
         public virtual string Filename
         {
             get
@@ -377,7 +371,7 @@ namespace AdminShellNS
             // seems to be required by Phoenix
             request.Headers.Add("User-Agent", "aasx-package-explorer/1.0.0");
 
-            // would be good to always have an accept header, if in doubt: "*/*"
+            // would be good to always have an accept header, if in doubt: * / *
             if (acceptHeader?.HasContent() == true)
                 request.Headers.Add("Accept", acceptHeader);
 
@@ -436,7 +430,7 @@ namespace AdminShellNS
                 }
 
                 // MIHO, 2025-07-21: old, working code:
-                // var response = client.GetAsync(uriString).GetAwaiter().GetResult();
+                //// var response = client.GetAsync(uriString).GetAwaiter().GetResult();
 
                 // re-direct?
                 if (response.StatusCode == HttpStatusCode.Moved

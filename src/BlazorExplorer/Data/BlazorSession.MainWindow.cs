@@ -180,7 +180,7 @@ namespace BlazorUI.Data
             // displaying
             try
             {
-                RestartUIafterNewPackage(onlyAuxiliary);
+                await RestartUIafterNewPackage(onlyAuxiliary);
             }
             catch (Exception ex)
             {
@@ -502,7 +502,7 @@ namespace BlazorUI.Data
                     fileRepo.StartAnimation(fi, PackageContainerRepoItem.VisualStateEnum.ReadFrom);
 
                     // activate
-                    UiLoadPackageWithNew(PackageCentral.MainItem,
+                    await UiLoadPackageWithNew(PackageCentral.MainItem,
                         takeOverContainer: container, onlyAuxiliary: false);
 
                     Log.Singleton.Info($"Successfully loaded AASX {location}");
@@ -523,8 +523,7 @@ namespace BlazorUI.Data
         {
             await Task.Yield();
 
-            // TODO: take over from WPF app
-
+            // TODO (MIHO, 2025-01-01): take over from WPF app
             return null;
         }
 

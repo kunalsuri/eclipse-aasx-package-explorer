@@ -370,7 +370,7 @@ namespace AasxPluginAssetInterfaceDescription
         /// <returns>Number of values changed</returns>
         virtual public async Task PrepareContinousRunAsync(IEnumerable<AidIfxItemStatus> items)
         {
-
+            await Task.Yield();
         }
 
         public void NotifyOutputItems(AidIfxItemStatus item, string strval)
@@ -665,6 +665,7 @@ namespace AasxPluginAssetInterfaceDescription
                     // go thru all items (async)
                     if (false)
                     {
+                        #pragma warning disable CS0162 // Unerreichbarer Code wurde entdeckt.
                         var clientDescription = new Workstation.ServiceModel.Ua.ApplicationDescription
                         {
                             ApplicationName = "AASX Package Explorer",
@@ -681,6 +682,8 @@ namespace AasxPluginAssetInterfaceDescription
 
                         // try opening a session and reading a few nodes.
                         await _channel.OpenAsync();
+                        
+                        #pragma warning restore CS0162 // Unerreichbarer Code wurde entdeckt.
                     }
 
                     // see: https://www.hanselman.com/blog/parallelforeachasync-in-net-6

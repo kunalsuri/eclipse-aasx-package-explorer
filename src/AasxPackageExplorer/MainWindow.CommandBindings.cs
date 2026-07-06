@@ -350,7 +350,7 @@ namespace AasxPackageExplorer
                 CommandBinding_PrintAsset(ticket);
 
             if (cmd == "importdictsubmodel" || cmd == "importdictsubmodelelements")
-                CommandBinding_ImportDictToSubmodel(cmd, ticket);
+                await CommandBinding_ImportDictToSubmodel(cmd, ticket);
 
             // stays in WPF
             if (cmd == "serverrest")
@@ -362,7 +362,7 @@ namespace AasxPackageExplorer
 
             // stays in WPF
             if (cmd == "connectintegrated")
-                CommandBinding_ConnectIntegrated();
+                await CommandBinding_ConnectIntegrated();
 
             // stays in WPF
             if (cmd == "connectsecure")
@@ -405,7 +405,7 @@ namespace AasxPackageExplorer
 
             // REFACTOR: STAYS
             if (cmd == "checkandfix")
-                CommandBinding_CheckAndFix();
+                await CommandBinding_CheckAndFix();
 
             // REFACTOR: STAYS
             if (cmd == "eventsresetlocks")
@@ -646,7 +646,7 @@ namespace AasxPackageExplorer
             Log.Singleton.Info("Secure connect done.");
         }
 
-        public void CommandBinding_ConnectIntegrated()
+        public async Task CommandBinding_ConnectIntegrated()
         {
             // make dialogue flyout
             var uc = new IntegratedConnectFlyout(
@@ -667,7 +667,7 @@ namespace AasxPackageExplorer
                     $"{uc.ResultContainer.ToString()} ..");
                 try
                 {
-                    UiLoadPackageWithNew(
+                    await UiLoadPackageWithNew(
                         PackageCentral.MainItem, null, takeOverContainer: uc.ResultContainer, onlyAuxiliary: false);
                 }
                 catch (Exception ex)
@@ -1038,7 +1038,7 @@ namespace AasxPackageExplorer
                         }
 
                         if (System.IO.File.Exists(AasxOpenIdClient.OpenIDClient.outputDir + "\\download.aasx"))
-                            UiLoadPackageWithNew(
+                            await UiLoadPackageWithNew(
                                 PackageCentral.MainItem,
                                 null,
                                 AasxOpenIdClient.OpenIDClient.outputDir + "\\download.aasx", onlyAuxiliary: false);
@@ -1074,7 +1074,7 @@ namespace AasxPackageExplorer
                         await AasxOpenIdClient.OpenIDClient.Run(tag, value/*, this*/);
 
                         if (System.IO.File.Exists(AasxOpenIdClient.OpenIDClient.outputDir + "\\download.aasx"))
-                            UiLoadPackageWithNew(
+                            await UiLoadPackageWithNew(
                                 PackageCentral.MainItem,
                                 null,
                                 AasxOpenIdClient.OpenIDClient.outputDir + "\\download.aasx", onlyAuxiliary: false);
