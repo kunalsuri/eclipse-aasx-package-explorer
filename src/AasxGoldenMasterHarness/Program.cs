@@ -44,11 +44,19 @@ namespace AasxGoldenMasterHarness
                 {
                     case "--input":
                     case "-i":
-                        inputPath = args[++i];
+                        if (!TryGetOptionValue(args, ref i, out inputPath))
+                        {
+                            return 1;
+                        }
+
                         break;
                     case "--output":
                     case "-o":
-                        outputDir = args[++i];
+                        if (!TryGetOptionValue(args, ref i, out outputDir))
+                        {
+                            return 1;
+                        }
+
                         break;
                     case "--help":
                     case "-h":
@@ -69,7 +77,15 @@ namespace AasxGoldenMasterHarness
             }
 
             outputDir = string.IsNullOrWhiteSpace(outputDir) ? "golden-master-output" : outputDir;
-            Directory.CreateDirectory(outputDir);
+            try
+            {
+                Directory.CreateDirectory(outputDir);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Could not create output directory '{outputDir}': {ex.Message}");
+                return 1;
+            }
 
             var files = ResolveInputFiles(inputPath);
             if (files.Count == 0)
@@ -96,7 +112,7 @@ namespace AasxGoldenMasterHarness
                     result = new JsonObject
                     {
                         ["sourceFile"] = Path.GetFileName(file),
-                        ["parse"] = new JsonObject { ["success"] = false, ["error"] = ex.ToString() },
+                        ["parse"] = new JsonObject { ["success"] = false, ["error"] = DescribeException(ex) },
                         ["validation"] = null,
                         ["serialization"] = null,
                         ["summary"] = null,
@@ -106,7 +122,16 @@ namespace AasxGoldenMasterHarness
 
                 var outFile = Path.Combine(
                     outputDir, Path.GetFileNameWithoutExtension(file) + ".json");
-                File.WriteAllText(outFile, result.ToJsonString(OutputJsonOptions));
+                try
+                {
+                    File.WriteAllText(outFile, result.ToJsonString(OutputJsonOptions));
+                }
+                catch (Exception ex)
+                {
+                    failures++;
+                    Console.Error.WriteLine($"  Could not write '{outFile}': {ex.Message}");
+                    continue;
+                }
 
                 var parseOk = (bool)((JsonObject)result["parse"])["success"];
                 var validationOk = result["validation"] == null
@@ -126,6 +151,20 @@ namespace AasxGoldenMasterHarness
                 $"Output written to '{outputDir}'.");
 
             return failures == 0 ? 0 : 2;
+        }
+
+        private static bool TryGetOptionValue(string[] args, ref int index, out string value)
+        {
+            if (index + 1 < args.Length)
+            {
+                value = args[++index];
+                return true;
+            }
+
+            Console.Error.WriteLine($"Missing value for {args[index]}.");
+            PrintUsage();
+            value = null;
+            return false;
         }
 
         private static List<string> ResolveInputFiles(string inputPath)
@@ -166,7 +205,7 @@ namespace AasxGoldenMasterHarness
             }
             catch (Exception ex)
             {
-                result["parse"] = new JsonObject { ["success"] = false, ["error"] = ex.Message };
+                result["parse"] = new JsonObject { ["success"] = false, ["error"] = DescribeException(ex) };
                 result["validation"] = null;
                 result["serialization"] = null;
                 result["summary"] = null;
@@ -221,6 +260,7 @@ namespace AasxGoldenMasterHarness
                 {
                     ["success"] = true,
                     ["error"] = null,
+                    ["isValid"] = errors.Count == 0,
                     ["errorCount"] = errors.Count,
                     ["errors"] = errorsArray
                 };
@@ -230,7 +270,8 @@ namespace AasxGoldenMasterHarness
                 return new JsonObject
                 {
                     ["success"] = false,
-                    ["error"] = ex.ToString(),
+                    ["error"] = DescribeException(ex),
+                    ["isValid"] = null,
                     ["errorCount"] = null,
                     ["errors"] = null
                 };
@@ -247,8 +288,17 @@ namespace AasxGoldenMasterHarness
             catch (Exception ex)
             {
                 environmentJson = null;
-                return new JsonObject { ["success"] = false, ["error"] = ex.ToString() };
+                return new JsonObject { ["success"] = false, ["error"] = DescribeException(ex) };
             }
+        }
+
+        private static JsonObject DescribeException(Exception exception)
+        {
+            return new JsonObject
+            {
+                ["type"] = exception.GetType().FullName,
+                ["message"] = exception.Message
+            };
         }
 
         private static string ComputeSha256(string file)

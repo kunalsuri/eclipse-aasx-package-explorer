@@ -15,6 +15,8 @@ Each step is recorded independently (`parse`/`validation`/`serialization`,
 each with `success`/`error`), so a failure in one step (including an
 exception thrown by the generated verifier itself) does not prevent the
 others from being captured, and does not abort the rest of the batch.
+Errors are recorded as a stable exception type/message pair, not a stack
+trace, so snapshots remain portable across machines.
 
 ## Usage
 
@@ -34,6 +36,13 @@ Example, against the sample files already checked into this repo:
 dotnet run --project AasxGoldenMasterHarness -- --input BlazorUI --output /tmp/golden-master
 ```
 
+The checked-in baseline snapshots are generated from the eight sample files in
+`BlazorUI/` with:
+
+```powershell
+dotnet run --project AasxGoldenMasterHarness -- --input BlazorUI --output AasxGoldenMasterHarness/GoldenMasters/BlazorUI
+```
+
 ## Output format
 
 ```jsonc
@@ -42,7 +51,7 @@ dotnet run --project AasxGoldenMasterHarness -- --input BlazorUI --output /tmp/g
   "sourceFileSizeBytes": 12345,
   "sourceFileSha256": "…",
   "parse": { "success": true, "error": null },
-  "validation": { "success": true, "error": null, "errorCount": 0, "errors": [] },
+  "validation": { "success": true, "error": null, "isValid": true, "errorCount": 0, "errors": [] },
   "serialization": { "success": true, "error": null },
   "summary": {
     "assetAdministrationShellCount": 1,
@@ -52,6 +61,11 @@ dotnet run --project AasxGoldenMasterHarness -- --input BlazorUI --output /tmp/g
   "environment": { /* full AAS Environment, as produced by Aas.Jsonization.Serialize */ }
 }
 ```
+
+When a step throws, `error` is an object such as
+`{ "type": "System.NullReferenceException", "message": "..." }`.
+`validation.success` means that validation completed; `validation.isValid`
+states whether the completed validation found zero specification errors.
 
 `sourceFileSha256` lets a consumer detect whether a committed `.aasx` fixture
 has drifted from the snapshot that was generated for it.
