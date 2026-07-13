@@ -112,7 +112,12 @@ namespace AasxGoldenMasterHarness
                     result = new JsonObject
                     {
                         ["sourceFile"] = Path.GetFileName(file),
-                        ["parse"] = new JsonObject { ["success"] = false, ["error"] = DescribeException(ex) },
+                        ["parse"] = new JsonObject
+                        {
+                            ["success"] = false,
+                            ["error"] = DescribeException(ex),
+                            ["diagnostics"] = null
+                        },
                         ["validation"] = null,
                         ["serialization"] = null,
                         ["summary"] = null,
@@ -195,27 +200,44 @@ namespace AasxGoldenMasterHarness
             };
 
             AdminShellPackageFileBasedEnv pkg = null;
+            var originalConsoleOutput = Console.Out;
+            using var parserDiagnostics = new StringWriter();
             try
             {
                 // indirectLoadSave: true copies the .aasx to a temp file before opening it.
                 // Package.Open() opens with ReadWrite access and can rewrite the zip
                 // structure on Close()/Dispose() even without an explicit save, so loading
                 // the source file directly would silently mutate committed fixtures on disk.
+                Console.SetOut(parserDiagnostics);
                 pkg = new AdminShellPackageFileBasedEnv(file, indirectLoadSave: true);
             }
             catch (Exception ex)
             {
-                result["parse"] = new JsonObject { ["success"] = false, ["error"] = DescribeException(ex) };
+                result["parse"] = new JsonObject
+                {
+                    ["success"] = false,
+                    ["error"] = DescribeException(ex),
+                    ["diagnostics"] = ToDiagnosticArray(parserDiagnostics.ToString())
+                };
                 result["validation"] = null;
                 result["serialization"] = null;
                 result["summary"] = null;
                 result["environment"] = null;
                 return result;
             }
+            finally
+            {
+                Console.SetOut(originalConsoleOutput);
+            }
 
             try
             {
-                result["parse"] = new JsonObject { ["success"] = true, ["error"] = null };
+                result["parse"] = new JsonObject
+                {
+                    ["success"] = true,
+                    ["error"] = null,
+                    ["diagnostics"] = ToDiagnosticArray(parserDiagnostics.ToString())
+                };
 
                 var env = pkg.AasEnv;
 
@@ -299,6 +321,19 @@ namespace AasxGoldenMasterHarness
                 ["type"] = exception.GetType().FullName,
                 ["message"] = exception.Message
             };
+        }
+
+        private static JsonArray ToDiagnosticArray(string diagnostics)
+        {
+            var lines = diagnostics.Split(
+                new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var result = new JsonArray();
+            foreach (var line in lines)
+            {
+                result.Add(line);
+            }
+
+            return result;
         }
 
         private static string ComputeSha256(string file)

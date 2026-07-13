@@ -50,7 +50,7 @@ dotnet run --project AasxGoldenMasterHarness -- --input BlazorUI --output AasxGo
   "sourceFile": "example.aasx",
   "sourceFileSizeBytes": 12345,
   "sourceFileSha256": "…",
-  "parse": { "success": true, "error": null },
+  "parse": { "success": true, "error": null, "diagnostics": [] },
   "validation": { "success": true, "error": null, "isValid": true, "errorCount": 0, "errors": [] },
   "serialization": { "success": true, "error": null },
   "summary": {
@@ -66,12 +66,25 @@ When a step throws, `error` is an object such as
 `{ "type": "System.NullReferenceException", "message": "..." }`.
 `validation.success` means that validation completed; `validation.isValid`
 states whether the completed validation found zero specification errors.
+`parse.diagnostics` contains non-fatal notices emitted by the package loader.
 
 `sourceFileSha256` lets a consumer detect whether a committed `.aasx` fixture
 has drifted from the snapshot that was generated for it.
 
 The tool exits `0` if every step succeeded for every file, `2` if any step
 failed for any file, and `1` for a usage/argument error.
+
+## Checked-in baseline
+
+`GoldenMasters/BlazorUI/` contains reproducible JSON snapshots for every
+`.aasx` fixture in `BlazorUI/`. They are byte-for-byte reproducible with the
+command above.
+
+All eight fixtures parse and serialize successfully. For the current baseline,
+validation completes for `Phoenix_Contact_PT_4_-_CAD.aasx` (8,553 reported
+validation errors) and `TimesSeries - 6 - admin-shell-io-2.aasx` (one reported
+validation error). The other six fixtures encounter the generated-verifier
+exception described below, so the batch intentionally exits with status `2`.
 
 ## Known finding
 
