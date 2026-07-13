@@ -1,0 +1,35 @@
+# Copilot instructions
+
+Full instructions for this repo live in [`AGENTS.md`](../AGENTS.md) at
+the repository root — read that file first. Summary below in case your
+context window doesn't pull in the linked file.
+
+## Summary
+
+Eclipse AASX Package Explorer™ is a C#/.NET solution (WPF desktop app +
+Blazor web UI sharing logic, plus a plugin architecture) for viewing and
+editing Asset Administration Shells. All source is under `src/`
+(`src/AasxPackageExplorer.sln`, ~60 projects).
+
+- **Platform**: the WPF app and several plugins (OPC UA, GDI) are
+  Windows-only, built with `--runtime win-x64`. Say so if you can't
+  actually build/run on the current platform.
+- **Build**: from `src/`, run `./BuildForDebug.ps1` (PowerShell).
+- **Test**: from `src/`, run `./DownloadSamples.ps1` once, then
+  `./Test.ps1` (NUnit) after a build.
+- **Style**: `./CheckHeaders.ps1`, `./CheckFormat.ps1`,
+  `./CheckBiteSized.ps1`, `./CheckDeadCode.ps1`, `./CheckTodos.ps1` must
+  all pass — these mirror the `check-style` CI workflow. New `.cs`/
+  `.xaml` files need the standard Apache-2.0 copyright header (see
+  `AGENTS.md`).
+- **Commits/PRs**: imperative mood, first line ≤ 72 chars, no trailing
+  period (enforced by `check-commit-messages` CI); PRs are squash-merged.
+- **Conventions**: follow the nearest existing similar file as a
+  template (e.g. copy `AasxPluginTechnicalData` for a new plugin); don't
+  edit generated/vendored trees (`AasCore.Aas3_1`,
+  `es6numberserializer`, `jsoncanonicalizer`, `AasxFileServerRestLibrary`,
+  `*_bkp`) unless the task targets them directly.
+
+For repository layout, the plugin catalog, and the AnyUI/scripting
+architecture, see `AGENTS.md` and the `.agents/` reference docs it links
+to.
