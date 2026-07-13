@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet format:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet tool restore:*)",
+      "Bash(dotnet list:*)",
+      "Bash(./BuildForDebug.ps1:*)",
+      "Bash(./Test.ps1:*)",
+      "Bash(./CheckFormat.ps1:*)",
+      "Bash(./CheckHeaders.ps1:*)",
+      "Bash(./CheckBiteSized.ps1:*)",
+      "Bash(./CheckDeadCode.ps1:*)",
+      "Bash(./CheckTodos.ps1:*)",
+      "Bash(./CheckLicenses.ps1:*)",
+      "Bash(./InstallSolutionDependencies.ps1:*)",
+      "Bash(./InstallToolsForBuildTestInspect.ps1:*)",
+      "Bash(./InstallToolsForStyle.ps1:*)",
+      "Bash(./DownloadSamples.ps1:*)"
+    ]
+  }
+}
