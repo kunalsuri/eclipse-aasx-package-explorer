@@ -6,12 +6,12 @@
 # Relative link for non-Claude agents: [AGENTS.md](AGENTS.md)
 
 > [!WARNING] This is a FORK of **eclipse-aaspe/package-explorer** (upstream).
-Stack: <fill in>.
+Stack: C#/.NET (WPF + Blazor), PowerShell build/test scripts. `[inferred]`
 
-## Build & test — VERIFY in the cold-start pass before trusting
-- Build: `<fill in>`
-- Test:  `<fill in>`
-- Test locations: <fill in during cold start>
+## Build & test — corrected by /cold-start 2026-07-14, `[inferred]`
+- Build: `cd src && ./BuildForDebug.ps1`
+- Test:  `cd src && ./DownloadSamples.ps1` (once) `&& ./BuildForDebug.ps1 && ./Test.ps1`
+- Test locations: `src/AasxDictionaryImport.Tests/` (only dedicated NUnit project found)
 - Run the suite matching what you changed BEFORE claiming success.
 
 ## Hard rules (non-negotiable)

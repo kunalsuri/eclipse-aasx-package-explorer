@@ -1,0 +1,33 @@
+%% Copyright (c) 2026 Kunal Suri (CEA LIST). All rights reserved.
+%% [inferred] drafted by /cold-start 2026-07-14 @ commit c8f3ea37
+%% The AnyUi seam: verified in .agents/architecture.md as an in-process abstraction
+%% (same .NET solution, no network protocol) — not a client/server boundary.
+graph LR
+    subgraph shared["AasxPackageLogic (shared, UI-agnostic)"]
+        DialogHelpers["DispEditHelper*.cs"]
+        AnyUiDesc["AnyUiBase.cs / AnyUiforAas.cs<br/>(UI described as data)"]
+        DialogHelpers --> AnyUiDesc
+    end
+
+    subgraph wpf["WPF front end"]
+        IntBaseWpf["AasxIntegrationBaseWpf<br/>(renders AnyUi -> WPF controls)"]
+        MainWindow["AasxPackageExplorer / MainWindow.xaml"]
+        IntBaseWpf --> MainWindow
+    end
+
+    subgraph blazor["Blazor front end"]
+        AnyUiHtml["BlazorUI / AnyUiHtml.cs<br/>(renders AnyUi -> HTML)"]
+        BlazorApp["BlazorExplorer"]
+        AnyUiHtml --> BlazorApp
+    end
+
+    subgraph plugins["Plugin host boundary"]
+        PluginIface["IAasxPluginInterface<br/>(AasxIntegrationBase/AasxPluginInterface.cs)"]
+        PluginDll["AasxPlugin* DLL<br/>discovered via .plugin marker file"]
+        PluginIface -.->|ActivateAction / ActivateActionAsync| PluginDll
+    end
+
+    AnyUiDesc -->|in-process render call| IntBaseWpf
+    AnyUiDesc -->|in-process render call| AnyUiHtml
+    MainWindow -->|loads from plugins/ dir at runtime| PluginIface
+    PluginDll -->|builds UI via| AnyUiDesc

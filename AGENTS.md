@@ -7,14 +7,14 @@ other tools read this file directly.
 
 ## Project
 > [!WARNING] This is a FORK of **eclipse-aaspe/package-explorer** (upstream).
-Stack: <fill in>.
+Stack: C#/.NET (WPF + Blazor), PowerShell build/test scripts. `[inferred]`
 
 ## Rules every agent must follow
 1. **Frozen upstream.** Code inherited from **eclipse-aaspe/package-explorer** is off-limits unless the task explicitly requires it. New work goes in our own modules.
 2. **No layout churn.** Don't reorganize directories; existing contributors depend on
    the structure.
 3. **Test before done.** Run the suite matching your change; never declare success
-   untested. Build: `<fill in>` · Test: `<fill in>`
+   untested. Build: `cd src && ./BuildForDebug.ps1` · Test: `cd src && ./DownloadSamples.ps1 && ./BuildForDebug.ps1 && ./Test.ps1` `[inferred, corrected by /cold-start 2026-07-14]`
 4. **Match the license-header practice of neighboring files** — copy their header if
    they have one, add none if they don't.
 5. **Locate, then read.** Use `ai/guide/MODULE_MAP.md` to find code; grep before

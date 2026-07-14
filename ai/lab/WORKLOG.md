@@ -35,3 +35,5 @@ this ledger says *what was done to it, when, and under which contract*.
 
 | ID | Date | Type | Title | Spec | ADRs | Review | Eval | Commits / PR | Knowledge updated | Status | Provenance |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| W-001 | 2026-07-14 | process | Cold-start the `ai/` knowledge layer | — | — | — | — | uncommitted (working tree) | `ai/guide/MODULE_MAP.md`, `ai/guide/ARCHITECTURE.md`, `ai/guide/CONVENTIONS.md`, `ai/guide/PROJECT_OVERVIEW.md`, `ai/guide/FEATURE_MAP.md`, `ai/analysis/diagrams/package-deps.mmd`, `ai/analysis/diagrams/domain-core.mmd`, `ai/analysis/diagrams/seam.mmd`, `CLAUDE.md` (Build/Test lines), `AGENTS.md` (Build/Test line) | in-review | [inferred] |
+| W-002 | 2026-07-14 | process | Sync repository-local skills for Codex | `ai/lab/specs/SPEC_codex-skill-sync.md` | — | `ai/lab/reviews/REVIEW_W-002.md` | — | uncommitted (working tree) | `.codex/skills/`, `ai/analysis/audit-reports/VERIFICATION_MANIFEST.json`, `ai/analysis/audit-reports/VERIFICATION_REPORT.md` | in-review | [inferred] |

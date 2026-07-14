@@ -1,0 +1,34 @@
+%% Copyright (c) 2026 Kunal Suri (CEA LIST). All rights reserved.
+%% [inferred] drafted by /cold-start 2026-07-14 @ commit c8f3ea37
+%% Core domain types, from .agents/architecture.md + AasCore.Aas3_1 naming conventions.
+%% UNSURE — needs human: exact type relationships not verified against source, only
+%% the module's stated purpose. Confirm against AasCore.Aas3_1 before treating as fact.
+classDiagram
+    class AdminShellPackageEnv {
+        +load .aasx OPC~ZIP package
+        +save .aasx OPC~ZIP package
+    }
+    class IReferable {
+        <<interface>>
+    }
+    class AssetAdministrationShell {
+        +AssetInformation
+        +Submodel[] references
+    }
+    class Submodel {
+        +SubmodelElement[]
+    }
+    class SubmodelElement {
+        <<abstract>>
+    }
+    class ConceptDescription {
+        predefined semantic identifiers
+    }
+
+    AdminShellPackageEnv --> AssetAdministrationShell : contains one or more
+    AssetAdministrationShell --> Submodel : references
+    Submodel --> SubmodelElement : contains
+    AssetAdministrationShell ..|> IReferable
+    Submodel ..|> IReferable
+    SubmodelElement ..|> IReferable
+    Submodel ..> ConceptDescription : elements validated/recognized against

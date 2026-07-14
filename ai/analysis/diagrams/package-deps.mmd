@@ -1,0 +1,54 @@
+%% Copyright (c) 2026 Kunal Suri (CEA LIST). All rights reserved.
+%% [inferred] drafted by /cold-start 2026-07-14 @ commit c8f3ea37
+%% Curated subset of ai/repo-indepth.json moduleStructure — not exhaustive (62 projects total).
+graph TD
+    AasCore["AasCore.Aas3_1<br/>(generated metamodel)"]
+    CsLib["AasxCsharpLibrary<br/>(.aasx package I/O)"]
+    PredefConcepts["AasxPredefinedConcepts"]
+    AnyUi["AnyUi<br/>(UI-as-data abstraction)"]
+    IntBase["AasxIntegrationBase<br/>(plugin interface)"]
+    IntBaseWpf["AasxIntegrationBaseWpf"]
+    IntBaseGdi["AasxIntegrationBaseGdi"]
+    PkgLogic["AasxPackageLogic<br/>(shared app logic)"]
+    Explorer["AasxPackageExplorer<br/>(WPF front end)"]
+    BlazorUI["BlazorUI"]
+    BlazorExplorer["BlazorExplorer<br/>(web front end)"]
+    Plugins["AasxPlugin*<br/>(17 projects)"]
+    Toolkit["AasxToolkit<br/>(CLI)"]
+    GoldenMaster["AasxGoldenMasterHarness<br/>(fork addition)"]
+
+    CsLib --> AasCore
+    PredefConcepts --> AasCore
+    PredefConcepts --> IntBase
+    AnyUi --> AasCore
+    IntBase --> AasCore
+    IntBase --> AnyUi
+    IntBaseWpf --> IntBase
+    IntBaseWpf --> AnyUi
+    IntBaseGdi --> AnyUi
+    IntBaseGdi --> AasCore
+    PkgLogic --> AasCore
+    PkgLogic --> IntBase
+    PkgLogic --> AnyUi
+    PkgLogic --> CsLib
+    Explorer --> PkgLogic
+    Explorer --> IntBase
+    Explorer --> AnyUi
+    Explorer --> IntBaseWpf
+    BlazorUI --> IntBase
+    BlazorUI --> PkgLogic
+    BlazorUI --> AnyUi
+    BlazorExplorer --> PkgLogic
+    BlazorExplorer --> BlazorUI
+    BlazorExplorer --> Explorer
+    Plugins --> IntBase
+    Plugins --> AnyUi
+    Plugins --> AasCore
+    Plugins --> PredefConcepts
+    Toolkit --> IntBase
+    Toolkit --> PredefConcepts
+    GoldenMaster --> AasCore
+    GoldenMaster -.->|fork addition, no upstream dep| CsLib
+
+    classDef ours fill:#2d5,stroke:#141,stroke-width:2px
+    class GoldenMaster ours
