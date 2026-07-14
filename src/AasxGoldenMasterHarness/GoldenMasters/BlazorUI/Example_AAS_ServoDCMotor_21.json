@@ -4,7 +4,12 @@
   "sourceFileSha256": "f4f654cef46fd5c80f2e49a169a5530c163c5b0378d0fd4a3f30ba4517777099",
   "parse": {
     "success": true,
-    "error": null
+    "error": null,
+    "diagnostics": [
+      "ValueType langString not found for property ProductDesignation",
+      "ValueType langString not found for property DocumentClassName",
+      "ValueType langString not found for property Title"
+    ]
   },
   "validation": {
     "success": false,

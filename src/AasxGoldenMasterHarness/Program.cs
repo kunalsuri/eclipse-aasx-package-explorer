@@ -28,7 +28,12 @@ namespace AasxGoldenMasterHarness
     /// </summary>
     public static class Program
     {
-        private static readonly JsonSerializerOptions OutputJsonOptions = new JsonSerializerOptions
+        // Based on JsonSerializerOptions.Default rather than a bare `new()` so it carries
+        // a TypeInfoResolver: JsonArray.Add(string) resolves to the generic Add<T>
+        // overload, which wraps the value in a JsonValueCustomized<T> that resolves its
+        // type info lazily from the options passed to ToJsonString - and throws
+        // InvalidOperationException at write time if that options has no resolver.
+        private static readonly JsonSerializerOptions OutputJsonOptions = new JsonSerializerOptions(JsonSerializerOptions.Default)
         {
             WriteIndented = true
         };

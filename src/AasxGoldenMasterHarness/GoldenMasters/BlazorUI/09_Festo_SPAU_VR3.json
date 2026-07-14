@@ -4,7 +4,22 @@
   "sourceFileSha256": "0c3d9b42bd274c41d8c7e20a9f6567d001956bb6bf03a8c56c84c946612e585c",
   "parse": {
     "success": true,
-    "error": null
+    "error": null,
+    "diagnostics": [
+      "ValueType  not found for property ManufacturerName",
+      "ValueType  not found for property ManufacturerProductDesignation",
+      "ValueType  not found for property ManufacturerPartNumber",
+      "ValueType  not found for property ManufacturerOrderCode",
+      "ValueType  not found for property ProductClassificationSystem",
+      "ValueType  not found for property ClassificationSystemVersion",
+      "ValueType  not found for property ProductClassId",
+      "ValueType  not found for property SemanticIdNotAvailable01",
+      "ValueType  not found for property SemanticIdNotAvailable01",
+      "ValueType  not found for property SemanticIdNotAvailable01",
+      "ValueType  not found for property TextStatement01",
+      "ValueType  not found for property ValidDate",
+      "ValueType  not found for property RegionPolygon"
+    ]
   },
   "validation": {
     "success": false,

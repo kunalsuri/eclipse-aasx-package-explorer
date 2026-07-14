@@ -4,7 +4,8 @@
   "sourceFileSha256": "7f156a7f8251ecb7f23fdf2fae4b64b25922b868b0099a6058f4d467dfdd82e7",
   "parse": {
     "success": true,
-    "error": null
+    "error": null,
+    "diagnostics": []
   },
   "validation": {
     "success": true,
